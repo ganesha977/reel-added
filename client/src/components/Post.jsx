@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Dialog, DialogContent, DialogTrigger } from "./ui/dialog";
-import { MessageCircle, MoreHorizontal, Send } from "lucide-react";
-import { Badge } from './ui/badge'
+import { MessageCircle, MoreHorizontal, Send, Bookmark } from "lucide-react";
+import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { FaHeart, FaRegHeart } from "react-icons/fa";
-import { Bookmark } from "lucide-react";
 import CommentDailogue from "./CommentDailogue";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "sonner";
@@ -24,31 +23,30 @@ const Post = ({ post }) => {
   const [comment, setComment] = useState(post.comments);
   const [isFollowing, setIsFollowing] = useState(false);
 
- 
   useEffect(() => {
     setIsFollowing(post?.author?.followers?.includes(user?._id));
   }, [post, user]);
-
 
   const changechangehandler = (e) => {
     const inputText = e.target.value;
     setText(inputText.trim() ? inputText : "");
   };
- const handleFollowOrUnfollow = async () => {
-      try {
-        const res = await axios.post(
-          `http://localhost:7777/api/v1/user/followorunfollow/${post?.author?._id}`,
-          {},
-          { withCredentials: true }
-        );
-        if (res.data.success) {
-          setIsFollowing(prev => !prev);
-          toast.success(res.data.message);
-        }
-      } catch (error) {
-        console.error("Follow/Unfollow Error:", error);
+
+  const handleFollowOrUnfollow = async () => {
+    try {
+      const res = await axios.post(
+        `http://localhost:7777/api/v1/user/followorunfollow/${post?.author?._id}`,
+        {},
+        { withCredentials: true }
+      );
+      if (res.data.success) {
+        setIsFollowing((prev) => !prev);
+        toast.success(res.data.message);
       }
-    };
+    } catch (error) {
+      console.error("Follow/Unfollow Error:", error);
+    }
+  };
 
   const deletePostHandeler = async () => {
     try {
@@ -57,7 +55,7 @@ const Post = ({ post }) => {
         { withCredentials: true }
       );
       if (res.data.success) {
-        const updatedPostData = posts.filter(p => p._id !== post._id);
+        const updatedPostData = posts.filter((p) => p._id !== post._id);
         dispatch(setPosts(updatedPostData));
         dispatch(setSelectedPost(null));
         toast.success(res.data.message);
@@ -83,17 +81,17 @@ const Post = ({ post }) => {
       );
 
       if (res.data.success) {
-        setPostlike(prev => liked ? prev - 1 : prev + 1);
-        setLiked(prev => !prev);
+        setPostlike((prev) => (liked ? prev - 1 : prev + 1));
+        setLiked((prev) => !prev);
         toast.success(res.data.message);
 
-        const updatedPostData = posts.map(p => {
+        const updatedPostData = posts.map((p) => {
           if (p._id === post._id) {
             return {
               ...p,
               likes: liked
-                ? p.likes.filter(id => id !== user._id)
-                : [...p.likes, user._id]
+                ? p.likes.filter((id) => id !== user._id)
+                : [...p.likes, user._id],
             };
           }
           return p;
@@ -113,15 +111,15 @@ const Post = ({ post }) => {
         `http://localhost:7777/api/v1/post/${post._id}/comment`,
         { text },
         {
-          headers: { 'Content-Type': 'application/json' },
-          withCredentials: true
+          headers: { "Content-Type": "application/json" },
+          withCredentials: true,
         }
       );
       if (res.data.success) {
         const updatedCommentData = [...comment, res.data.comment];
         setComment(updatedCommentData);
 
-        const updatedPostData = posts.map(p =>
+        const updatedPostData = posts.map((p) =>
           p._id === post._id ? { ...p, comments: updatedCommentData } : p
         );
 
@@ -150,9 +148,9 @@ const Post = ({ post }) => {
   };
 
   return (
-    <div className="my-8 w-full">
+    <div className="mb-6 w-full max-w-[470px] mx-auto lg:mx-0">
       <div className="flex items-center justify-between mb-3">
-        <Link to={`/profile/${post?.author?._id}`} className="font-medium mr-2 hover:ring-transparent">
+        <Link to={`/profile/${post?.author?._id}`} className="font-medium mr-2 hover:ring-transparent px-3 lg:px-0">
           <div className="flex items-center gap-3">
             <Avatar className="w-8 h-8">
               <AvatarImage src={post?.author?.profilePicture} alt="post-image" />
@@ -169,7 +167,7 @@ const Post = ({ post }) => {
 
         <Dialog>
           <DialogTrigger asChild>
-            <MoreHorizontal className="cursor-pointer" />
+            <MoreHorizontal className="cursor-pointer mr-3 lg:mr-0" />
           </DialogTrigger>
           <DialogContent className="bg-white text-black flex flex-col items-center text-sm text-center">
             {user && user._id !== post?.author?._id && (
@@ -207,12 +205,12 @@ const Post = ({ post }) => {
       </div>
 
       <img
-        className="rounded-lg w-full aspect-square object-cover"
+        className="w-full aspect-square object-cover border border-gray-200 lg:rounded-lg bg-black"
         src={post.image}
         alt="post_img"
       />
 
-      <div className="flex items-center justify-between my-3">
+      <div className="flex items-center justify-between my-3 px-3 lg:px-0">
         <div className="flex items-center gap-4">
           {liked ? (
             <FaHeart
@@ -249,7 +247,7 @@ const Post = ({ post }) => {
         />
       </div>
 
-      <div className="px-1">
+      <div className="px-3 lg:px-0">
         <span className="font-semibold text-sm">{postlike} likes</span>
         <p className="text-sm mt-1">
           <span className="font-semibold mr-2">{post?.author?.username}</span>
@@ -270,7 +268,7 @@ const Post = ({ post }) => {
 
       <CommentDailogue open={open} setOpen={setOpen} />
 
-      <div className="flex items-center justify-between mt-3 px-1">
+      <div className="flex items-center justify-between mt-3 px-3 lg:px-0">
         <input
           type="text"
           placeholder="Add a comment..."

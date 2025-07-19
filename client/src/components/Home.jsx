@@ -16,7 +16,7 @@ const Home = () => {
                 <Feed />
                 <Outlet />
             </div>
-            <div className='lg:w-80 lg:flex-shrink-0'>
+            <div className='lg:w-80 lg:flex-shrink-0 bg-gray-50'>
                 <RightSidebar />
             </div>
         </div>

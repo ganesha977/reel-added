@@ -1,4 +1,5 @@
 import {
+  Clapperboard,
   Heart,
   Home,
   LogOut,
@@ -72,7 +73,7 @@ const LeftSidebar = () => {
   const sidebarItems = [
     { icon: <Home />, text: 'Home' },
     { icon: <Search />, text: 'Search' },
-    { icon: <Video />, text: 'Reels' },
+    { icon: <Clapperboard />, text: 'Reels' },
     { icon: <MessageCircle />, text: 'Messages' },
     { icon: <Heart />, text: 'Notifications' },
     { icon: <PlusSquare />, text: 'Create' },

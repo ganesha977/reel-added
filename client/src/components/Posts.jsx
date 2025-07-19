@@ -1,19 +1,17 @@
-import React from 'react'
-import Post from './Post'
-import { useSelector } from 'react-redux'
+import React from 'react';
+import { useSelector } from 'react-redux';
+import Post from './Post';
 
 const Posts = () => {
   const { posts } = useSelector(store => store.post);
 
   return (
-    <div className='w-full max-w-md lg:max-w-sm mx-auto px-4 lg:px-0'>
-      {
-        posts.map((post) => (
-          <Post key={post._id} post={post} />
-        ))
-      }
+    <div className='w-full'>
+      {posts?.map(post => (
+        post && post._id && <Post key={post._id} post={post} />
+      ))}
     </div>
-  )
-}
+  );
+};
 
 export default Posts;
