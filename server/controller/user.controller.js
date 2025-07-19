@@ -365,36 +365,28 @@ const getsuggesteduser = async (req, res) => {
     });
   }
 };
-
-const getprofile = async (req, res) => {
+const getProfile = async (req, res) => {
   try {
     const userId = req.params.id;
 
     let user = await User.findById(userId)
       .select("-password")
       .populate({
-        path: "posts",
+        path: 'posts',
         options: { sort: { createdAt: -1 } },
-        populate: {
-          path: "author",
-          select: "username profilePicture",
-        },
+        populate: { path: 'author', select: 'username profilePicture' },
       })
       .populate({
-        path: "bookmarks",
-        model: "Post",
-        populate: {
-          path: "author",
-          select: "username profilePicture",
-        },
+        path: 'bookmarks',
+        populate: { path: 'author', select: 'username profilePicture' },
       })
       .populate({
-        path: "bookmarkedReels",
-        model: "Reel",
-        populate: {
-          path: "author",
-          select: "username profilePicture",
-        },
+        path: 'reels',
+        populate: { path: 'author', select: 'username profilePicture' }, // 🔥 Key fix here
+      })
+      .populate({
+        path: 'bookmarkedReels',
+        populate: { path: 'author', select: 'username profilePicture' },
       });
 
     if (!user) {
@@ -404,29 +396,21 @@ const getprofile = async (req, res) => {
       });
     }
 
-    // 🔍 Fix: Filter out null bookmarks and bookmarkedReels
-    user = {
-      ...user._doc,
-      bookmarks: user.bookmarks.filter((post) => post !== null),
-      bookmarkedReels: user.bookmarkedReels.filter((reel) => reel !== null),
-    };
-
     return res.status(200).json({
       user,
-      message: "User profile fetched successfully",
       success: true,
+      message: "User profile fetched successfully",
     });
 
   } catch (error) {
-    console.error(error);
+    console.error("getProfile error:", error.message);
     return res.status(500).json({
       message: "Profile fetch failed",
-      error,
-      success: false
+      error: error.message,
+      success: false,
     });
   }
 };
-
 
 
 
@@ -491,7 +475,7 @@ module.exports = {
   register,
   login,
   logout,
-  getprofile,
+  getProfile,
   editProfile,
   getsuggesteduser,
   followOrUnfollow
