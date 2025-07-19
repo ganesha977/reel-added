@@ -752,3 +752,53 @@ const followOrUnfollowHandler = async (authorId) => {
 };
 
 export default ReelsPage;
+
+
+
+
+const getprofile = async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    const user = await User.findById(userId)
+      .select("-password")
+      .populate({
+        path: "posts",
+        options: { sort: { createdAt: -1 } },
+        populate: {
+          path: "author",
+          select: "username profilePicture",
+        },
+      })
+      .populate({
+        path: "reels", // ✅ Only user's own uploaded reels
+        model: "Reel",
+        options: { sort: { createdAt: -1 } },
+        populate: {
+          path: "author",
+          select: "username profilePicture",
+        },
+      });
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+        success: false,
+      });
+    }
+
+    return res.status(200).json({
+      user,
+      message: "User profile fetched successfully",
+      success: true,
+    });
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      message: "Profile fetch failed",
+      error,
+      success: false
+    });
+  }
+};
