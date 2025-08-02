@@ -10,7 +10,7 @@ import axios from "axios";
 import { setReels, setSelectedReel } from "@/redux/reelSlice";
 import { Link } from "react-router-dom";
 import moment from "moment";
-import ReelCommentDialog from "./ReelCommentDialog ";
+import ReelCommentDialog from "./ReelCommentDialog";
 
 const Reel = ({ reel }) => {
   const [text, setText] = useState("");
@@ -26,7 +26,51 @@ const Reel = ({ reel }) => {
   const [reelLike, setReelLike] = useState(reel?.likes?.length || 0);
   const [comments, setComments] = useState(reel.comments);
 
-  // Sync video state with React state
+  // --- Pause and mute when out of view ---
+useEffect(() => {
+  const video = videoRef.current;
+  if (!video) return;
+
+  const observer = new IntersectionObserver(
+    ([entry]) => {
+      if (entry.isIntersecting) {
+        video.muted = false;
+        video.play()
+          .then(() => {
+            setIsPlaying(true);
+            setIsMuted(false);
+          })
+          .catch((error) => {
+            console.error("Auto-play on reentry prevented:", error);
+          });
+      } else {
+        video.pause();
+        video.muted = true;
+        setIsPlaying(false);
+        setIsMuted(true);
+      }
+    },
+    { threshold: 0.5 }
+  );
+
+  observer.observe(video);
+
+  return () => {
+    observer.disconnect();
+  };
+}, []);
+
+
+  // --- Pause video when comment dialog is opened ---
+  useEffect(() => {
+    const video = videoRef.current;
+    if (open && video) {
+      video.pause();
+      setIsPlaying(false);
+    }
+  }, [open]);
+
+  // --- Video events sync ---
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
@@ -46,7 +90,6 @@ const Reel = ({ reel }) => {
 
     const handleCanPlay = () => {
       setIsLoading(false);
-      // Try to play the video once it's ready
       if (video.paused) {
         video.play().catch((error) => {
           console.log("Auto-play prevented:", error);
@@ -84,25 +127,18 @@ const Reel = ({ reel }) => {
   const handlePlayPause = async (e) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     const video = videoRef.current;
-    if (!video) {
-      console.error("Video reference not found");
-      return;
-    }
+    if (!video) return;
 
     try {
       if (video.paused) {
-        console.log("Attempting to play video");
         await video.play();
       } else {
-        console.log("Pausing video");
         video.pause();
       }
     } catch (error) {
       console.error("Error in handlePlayPause:", error);
-      
-      // Handle different types of play errors
       if (error.name === 'NotAllowedError') {
         toast.error("Video play was prevented by browser policy");
       } else if (error.name === 'NotSupportedError') {
@@ -110,8 +146,6 @@ const Reel = ({ reel }) => {
       } else {
         toast.error("Error playing video");
       }
-      
-      // Ensure state reflects reality
       setIsPlaying(!video.paused);
     }
   };
@@ -119,14 +153,12 @@ const Reel = ({ reel }) => {
   const handleMuteToggle = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     const video = videoRef.current;
     if (video) {
       const newMutedState = !isMuted;
       video.muted = newMutedState;
       setIsMuted(newMutedState);
-      
-      // If unmuting and video is paused, try to play
       if (!newMutedState && video.paused) {
         video.play().catch((error) => {
           console.log("Play after unmute failed:", error);
@@ -244,7 +276,7 @@ const Reel = ({ reel }) => {
         </Dialog>
       </div>
 
-      {/* Video Container */}
+      {/* Video */}
       <div className="relative bg-black aspect-[4/5] overflow-hidden">
         <video
           ref={videoRef}
@@ -258,15 +290,13 @@ const Reel = ({ reel }) => {
           <source src={reel?.video} type="video/mp4" />
           Your browser does not support the video tag.
         </video>
-        
-        {/* Loading indicator */}
+
         {isLoading && (
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
           </div>
         )}
-        
-        {/* Volume Control */}
+
         <button
           onClick={handleMuteToggle}
           className="absolute bottom-4 right-4 p-2 bg-black bg-opacity-50 rounded-full hover:bg-opacity-70 transition-all"
@@ -278,7 +308,6 @@ const Reel = ({ reel }) => {
           )}
         </button>
 
-        {/* Play/Pause indicator */}
         {!isPlaying && !isLoading && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
             <div className="w-16 h-16 bg-black bg-opacity-50 rounded-full flex items-center justify-center">
@@ -288,21 +317,13 @@ const Reel = ({ reel }) => {
         )}
       </div>
 
-      {/* Action Buttons */}
+      {/* Actions */}
       <div className="flex items-center justify-between p-3">
         <div className="flex items-center space-x-4">
           {liked ? (
-            <FaHeart
-              size={24}
-              className="text-red-500 cursor-pointer hover:scale-110 transition-transform"
-              onClick={likeOrDislikeHandler}
-            />
+            <FaHeart size={24} className="text-red-500 cursor-pointer hover:scale-110 transition-transform" onClick={likeOrDislikeHandler} />
           ) : (
-            <FaRegHeart
-              size={24}
-              className="text-black cursor-pointer hover:scale-110 transition-transform"
-              onClick={likeOrDislikeHandler}
-            />
+            <FaRegHeart size={24} className="text-black cursor-pointer hover:scale-110 transition-transform" onClick={likeOrDislikeHandler} />
           )}
           <MessageCircle
             size={24}
@@ -312,33 +333,23 @@ const Reel = ({ reel }) => {
               setOpen(true);
             }}
           />
-          <Send
-            size={24}
-            className="text-black cursor-pointer hover:scale-110 transition-transform"
-          />
+          <Send size={24} className="text-black cursor-pointer hover:scale-110 transition-transform" />
         </div>
-        <Bookmark
-          size={24}
-          onClick={bookmarkHandler}
-          className="text-black cursor-pointer hover:scale-110 transition-transform"
-        />
+        <Bookmark size={24} onClick={bookmarkHandler} className="text-black cursor-pointer hover:scale-110 transition-transform" />
       </div>
 
-      {/* Likes Count */}
       <div className="px-3 pb-2">
         <span className="font-semibold text-sm text-black">
           {reelLike.toLocaleString()} likes
         </span>
       </div>
 
-      {/* Caption */}
       <div className="px-3 pb-2">
         <span className="font-semibold text-sm text-black">{reel?.author?.username}</span>
         <span className="text-sm text-black ml-2">{reel?.caption}</span>
         <button className="text-gray-500 text-sm ml-2">... more</button>
       </div>
 
-      {/* Comments */}
       {comments.length > 0 && (
         <div className="px-3 pb-2">
           <button 
@@ -359,10 +370,8 @@ const Reel = ({ reel }) => {
         </div>
       )}
 
-      {/* Comment Dialog */}
       <ReelCommentDialog open={open} setOpen={setOpen} />
 
-      {/* Add Comment */}
       <div className="px-3 pb-3 border-t border-gray-100 pt-3">
         <div className="flex items-center space-x-3">
           <Avatar className="w-8 h-8">
@@ -377,10 +386,7 @@ const Reel = ({ reel }) => {
             className="flex-1 text-sm border-none outline-none bg-transparent placeholder-gray-500"
           />
           {text && (
-            <button
-              className="text-blue-500 text-sm font-semibold"
-              onClick={commentHandler}
-            >
+            <button className="text-blue-500 text-sm font-semibold" onClick={commentHandler}>
               Post
             </button>
           )}

@@ -8,7 +8,7 @@ import { toast } from 'sonner';
 import axios from 'axios';
 import { setReels, setSelectedReel } from '@/redux/reelSlice';
 import { Link } from 'react-router-dom';
-import ReelCommentDialog from './ReelCommentDialog ';
+import ReelCommentOnlyDialog from './ReelCommentOnlyDialog';
 
 const ReelsPage = () => {
   const reelsContainerRef = useRef(null);
@@ -298,7 +298,7 @@ const ReelsPage = () => {
         `}</style>
       </div>
 
-      <ReelCommentDialog open={commentDialogOpen} setOpen={setCommentDialogOpen} />
+      <ReelCommentOnlyDialog open={commentDialogOpen} setOpen={setCommentDialogOpen} />
     </div>
   );
 };
