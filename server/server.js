@@ -1,8 +1,13 @@
+
+const dotenv = require("dotenv");
+dotenv.config();
+
+console.log("Loaded SECRET:", process.env.SECRET);
+
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const db = require("./config/db");
 const cors = require("cors");
-const dotenv = require("dotenv");
 const userroutes = require("./routes/user.route");
 const postroutes = require("./routes/post.route");
 const messageroutes = require("./routes/message.route");
@@ -13,7 +18,6 @@ require("./controller/story.controller"); // ✅ Load story cron job
 
 const { app, server } = require("./Socket");
 
-dotenv.config();
 
 const port = 7777;
 

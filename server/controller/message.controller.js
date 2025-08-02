@@ -2,6 +2,7 @@ const Conversation = require("../model/conversation.model");
 const Message = require("../model/message.model");
 const User = require("../model/user.model");
 const { getReceiverSocketId, io } = require("../Socket");
+
 const sendMessage = async (req, res) => {
   try {
     const senderId = req.id;
@@ -25,7 +26,7 @@ const sendMessage = async (req, res) => {
     });
 
     conversation.messages.push(newMessage._id);
-    await Promise.all([conversation.save(), newMessage.save()]);
+    await conversation.save();
 
     const receiverSocketId = getReceiverSocketId(receiverId);
 
@@ -34,25 +35,18 @@ const sendMessage = async (req, res) => {
 
       const senderUser = await User.findById(senderId).select("username profilePicture");
 
-      // 🆕 Send message notification separately on "message" event (not "notification")
       io.to(receiverSocketId).emit("message", {
         userId: senderId,
         userDetails: senderUser,
-        message: message
+        message
       });
     }
 
-    return res.status(201).json({
-      success: true,
-      newMessage
-    });
-
+    res.status(201).json({ success: true, newMessage });
   } catch (error) {
-    console.error("Send Message Error:", error);
     res.status(500).json({ success: false, message: "Something went wrong" });
   }
 };
-
 
 const getMessage = async (req, res) => {
   try {
@@ -67,13 +61,10 @@ const getMessage = async (req, res) => {
       return res.status(200).json({ success: true, messages: [] });
     }
 
-    return res.status(200).json({ success: true, messages: conversation.messages });
+    res.status(200).json({ success: true, messages: conversation.messages });
   } catch (error) {
-    console.log(error);
+    res.status(500).json({ success: false, message: "Something went wrong" });
   }
 };
 
-module.exports = {
-  sendMessage,
-  getMessage
-};
+module.exports = { sendMessage, getMessage };

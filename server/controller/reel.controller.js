@@ -7,19 +7,23 @@ const { getReceiverSocketId, io } = require("../Socket.js");
 const { getDataUri } = require("../config/DataUri");
 const cron = require("node-cron");
 
-// Upload new Reel
 const addNewReel = async (req, res) => {
   try {
     const { caption } = req.body;
     const video = req.file;
     const authorId = req.id;
 
-    if (!video) return res.status(400).json({ message: "Please upload a video", success: false });
+    if (!video) {
+      return res.status(400).json({ message: "Please upload a video", success: false });
+    }
 
     const fileUri = getDataUri(video);
 
-    const uploadRes = await Cloudinary.uploader.upload(fileUri, {
+    // ✅ Use upload_large for videos and add timeout + chunking
+    const uploadRes = await Cloudinary.uploader.upload_large(fileUri, {
       resource_type: "video",
+      chunk_size: 6000000, // 6MB chunks
+      timeout: 120000,     // 2 minutes
     });
 
     const reel = await Reel.create({

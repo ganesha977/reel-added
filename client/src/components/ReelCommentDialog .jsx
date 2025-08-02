@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { X, Heart, MoreHorizontal, Smile } from 'lucide-react';
+import { X, Heart, MoreHorizontal, Smile, Trash2 } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'sonner';
 import axios from 'axios';
@@ -22,7 +22,6 @@ const ReelCommentDialog = ({ open, setOpen }) => {
     const now = new Date();
     const commentDate = new Date(dateString);
     const diffInSeconds = Math.floor((now - commentDate) / 1000);
-    
     if (diffInSeconds < 60) return `${diffInSeconds}s`;
     if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m`;
     if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h`;
@@ -38,7 +37,7 @@ const ReelCommentDialog = ({ open, setOpen }) => {
         { text },
         {
           headers: { 'Content-Type': 'application/json' },
-          withCredentials: true
+          withCredentials: true,
         }
       );
 
@@ -47,9 +46,7 @@ const ReelCommentDialog = ({ open, setOpen }) => {
         setComments(updatedComments);
 
         const updatedReels = reels.map(r =>
-          r._id === selectedReel._id
-            ? { ...r, comments: updatedComments }
-            : r
+          r._id === selectedReel._id ? { ...r, comments: updatedComments } : r
         );
 
         dispatch(setReels(updatedReels));
@@ -69,106 +66,117 @@ const ReelCommentDialog = ({ open, setOpen }) => {
     }
   };
 
-  if (!open) return null;
+  const handleDeleteReel = async () => {
+    try {
+      const res = await axios.delete(
+        `http://localhost:7777/api/v1/reel/${selectedReel._id}`,
+        { withCredentials: true }
+      );
+
+      if (res.data.success) {
+        const updatedReels = reels.filter(r => r._id !== selectedReel._id);
+        dispatch(setReels(updatedReels));
+        toast.success("Reel deleted");
+        setOpen(false);
+      } else {
+        toast.error(res.data.message || "Failed to delete reel");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to delete reel");
+    }
+  };
+
+  if (!open || !selectedReel) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg w-full max-w-md mx-4 max-h-[80vh] flex flex-col">
-        {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900">Comments</h2>
-          <button
-            onClick={() => setOpen(false)}
-            className="p-1 hover:bg-gray-100 rounded-full transition-colors"
-          >
-            <X className="w-6 h-6 text-gray-600" />
-          </button>
+    <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center">
+      <div className="bg-white w-[90%] h-[90%] rounded-lg flex overflow-hidden shadow-2xl">
+        
+        {/* Left: Reel Video */}
+        <div className="w-1/2 bg-black flex items-center justify-center">
+          <video
+            src={selectedReel.video}
+            controls
+            autoPlay
+            muted
+            className="max-h-full w-full object-contain"
+          />
         </div>
 
-        {/* Comments List */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-0">
-          {comments.length === 0 ? (
-            <div className="text-center text-gray-500 py-8">
-              <p>No comments yet.</p>
-              <p className="text-sm">Be the first to comment!</p>
+        {/* Right: Comment section */}
+        <div className="w-1/2 flex flex-col">
+          {/* Header */}
+          <div className="flex items-center justify-between px-4 py-3 border-b">
+            <h2 className="text-base font-medium">Comments</h2>
+            <div className="flex gap-3 items-center">
+              {user?._id === selectedReel?.postedBy?._id && (
+                <button onClick={handleDeleteReel}>
+                  <Trash2 className="w-5 h-5 text-red-500" />
+                </button>
+              )}
+              <button onClick={() => setOpen(false)}>
+                <X className="w-5 h-5 text-gray-600" />
+              </button>
             </div>
-          ) : (
-            comments.map((comment) => (
-              <div key={comment._id} className="flex gap-3">
-                {/* Profile Picture */}
-                <img
-                  src={comment.author?.profilePicture || '/default-avatar.png'}
-                  alt={comment.author?.username}
-                  className="w-8 h-8 rounded-full flex-shrink-0"
-                />
-                
-                {/* Comment Content */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-start gap-2">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="font-semibold text-sm text-gray-900">
-                          {comment.author?.username}
-                        </span>
-                        <span className="text-xs text-gray-500">
-                          {formatTimeAgo(comment.createdAt)}
-                        </span>
-                      </div>
-                      <p className="text-sm text-gray-900 break-words">
-                        {comment.text}
-                      </p>
-                      
-                      {/* Comment Actions */}
-                      <div className="flex items-center gap-4 mt-2">
-                        <button className="text-xs text-gray-500 hover:text-gray-700 font-medium">
-                          Reply
-                        </button>
-                        <button className="text-xs text-gray-500 hover:text-gray-700">
-                          <Heart className="w-3 h-3" />
-                        </button>
-                      </div>
+          </div>
+
+          {/* Comments */}
+          <div className="flex-1 overflow-y-auto px-4 py-3 space-y-4">
+            {comments.length === 0 ? (
+              <p className="text-center text-gray-500 mt-10">No comments yet.</p>
+            ) : (
+              comments.map(comment => (
+                <div key={comment._id} className="flex gap-3">
+                  <img
+                    src={comment.author?.profilePicture || '/default-avatar.png'}
+                    className="w-9 h-9 rounded-full"
+                    alt={comment.author?.username}
+                  />
+                  <div className="flex-1">
+                    <div className="flex justify-between items-center">
+                      <span className="font-semibold text-sm">{comment.author?.username}</span>
+                      <span className="text-xs text-gray-400">{formatTimeAgo(comment.createdAt)}</span>
                     </div>
-                    
-                    {/* More Options */}
-                    <button className="p-1 hover:bg-gray-100 rounded-full transition-colors">
-                      <MoreHorizontal className="w-4 h-4 text-gray-400" />
-                    </button>
+                    <p className="text-sm text-gray-800">{comment.text}</p>
+                    <div className="flex items-center gap-2 text-xs mt-1 text-gray-500">
+                      <button className="hover:underline">Reply</button>
+                      <Heart className="w-3 h-3 hover:text-red-500 cursor-pointer" />
+                    </div>
                   </div>
+                  <MoreHorizontal className="w-4 h-4 text-gray-400 cursor-pointer" />
                 </div>
-              </div>
-            ))
-          )}
-        </div>
-
-        {/* Comment Input */}
-        <div className="border-t border-gray-200 p-4">
-          <div className="flex items-center gap-3">
-            <img
-              src={user?.profilePicture || '/default-avatar.png'}
-              alt="Your profile"
-              className="w-8 h-8 rounded-full flex-shrink-0"
-            />
-            <div className="flex-1 flex items-center gap-2 bg-gray-50 rounded-full px-4 py-2">
-              <input
-                type="text"
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder="Add a comment..."
-                className="flex-1 bg-transparent outline-none text-sm placeholder-gray-500"
-              />
-              <button className="p-1 hover:bg-gray-200 rounded-full transition-colors">
-                <Smile className="w-5 h-5 text-gray-400" />
-              </button>
-            </div>
-            {text.trim() && (
-              <button
-                onClick={sendCommentHandler}
-                className="text-blue-500 font-semibold text-sm hover:text-blue-600 transition-colors px-2"
-              >
-                Post
-              </button>
+              ))
             )}
+          </div>
+
+          {/* Input */}
+          <div className="border-t px-4 py-3">
+            <div className="flex items-center gap-3">
+              <img
+                src={user?.profilePicture || '/default-avatar.png'}
+                className="w-9 h-9 rounded-full"
+                alt="User"
+              />
+              <div className="flex-1 relative bg-gray-100 rounded-full px-4 py-2 flex items-center">
+                <input
+                  value={text}
+                  onChange={(e) => setText(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="Add a comment..."
+                  className="flex-1 bg-transparent text-sm outline-none"
+                />
+                <Smile className="w-5 h-5 text-gray-400" />
+              </div>
+              {text.trim() && (
+                <button
+                  onClick={sendCommentHandler}
+                  className="text-blue-500 font-medium text-sm"
+                >
+                  Post
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>

@@ -140,30 +140,31 @@ const Stories = () => {
 
   return (
     <>
-        <div className="w-full">
-
-        <div className="flex space-x-4 overflow-x-auto scrollbar-hide px-4 py-4">
+      <div className="w-full ">
+        <div className="flex gap-4 overflow-x-auto scrollbar-hide px-4 py-4">
+          {/* Your Story */}
           <div className="flex-shrink-0 flex flex-col items-center cursor-pointer group">
             <div className="relative" onClick={handleFileUpload}>
-<div className="w-[77px] h-[77px] rounded-full p-[2px] transition-transform group-hover:scale-105 bg-gradient-to-tr from-yellow-400 via-red-500 via-pink-600 to-purple-600">
-
+              <div className="w-[66px] h-[66px] rounded-full p-[2px] transition-transform group-hover:scale-105 bg-gradient-to-tr from-[#f09433] via-[#e6683c] via-[#dc2743] via-[#cc2366] to-[#bc1888]">
                 {isUploading ? (
                   <div className="w-full h-full rounded-full border-2 border-blue-500 border-t-transparent animate-spin"></div>
                 ) : (
                   <>
-                    <img
-                      src="https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&w=150"
-                      alt="Your story"
-                      className="w-full h-full rounded-full object-cover"
-                    />
-                    <div className="absolute bottom-0 right-0 w-6 h-6 bg-blue-500 rounded-full border-2 border-white flex items-center justify-center">
-                      <Plus size={14} className="text-white" />
+                    <div className="w-full h-full rounded-full bg-white p-[2px]">
+                      <img
+                        src="https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&w=150"
+                        alt="Your story"
+                        className="w-full h-full rounded-full object-cover"
+                      />
+                    </div>
+                    <div className="absolute bottom-0 right-0 w-[20px] h-[20px] bg-[#0095f6] rounded-full border-3 border-white flex items-center justify-center">
+                      <Plus size={12} className="text-white font-bold" />
                     </div>
                   </>
                 )}
               </div>
             </div>
-            <span className="text-xs text-gray-900 mt-1 max-w-[77px] truncate font-normal">
+            <span className="text-xs text-black mt-1 max-w-[66px] truncate font-normal">
               Your story
             </span>
             <input
@@ -175,6 +176,7 @@ const Stories = () => {
             />
           </div>
 
+          {/* Other Stories */}
           {storyGroups.map((group, index) => (
             <div
               key={group.id}
@@ -182,7 +184,7 @@ const Stories = () => {
               onClick={() => handleStoryClick(index)}
             >
               <div className="relative">
-                <div className="w-[77px] h-[77px] rounded-full p-[2px] transition-transform group-hover:scale-105 bg-gradient-to-tr from-yellow-500 via-pink-500 to-purple-700">
+                <div className="w-[66px] h-[66px] rounded-full p-[2px] transition-transform group-hover:scale-105 bg-gradient-to-tr from-[#f09433] via-[#e6683c] via-[#dc2743] via-[#cc2366] to-[#bc1888]">
                   <div className="w-full h-full rounded-full bg-white p-[2px]">
                     <img
                       src={group.profilePicture}
@@ -192,12 +194,12 @@ const Stories = () => {
                   </div>
                 </div>
                 {group.stories.length > 1 && (
-                  <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-blue-500 rounded-full border-2 border-white flex items-center justify-center">
-                    <span className="text-white text-xs font-bold">{group.stories.length}</span>
+                  <div className="absolute -bottom-1 -right-1 w-[18px] h-[18px] bg-[#0095f6] rounded-full border-2 border-white flex items-center justify-center">
+                    <span className="text-white text-[10px] font-bold">{group.stories.length}</span>
                   </div>
                 )}
               </div>
-              <span className="text-xs text-gray-900 mt-1 max-w-[77px] truncate font-normal">
+              <span className="text-xs text-black mt-1 max-w-[66px] truncate font-normal">
                 {group.username}
               </span>
             </div>
