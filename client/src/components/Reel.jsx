@@ -32,31 +32,33 @@ useEffect(() => {
   if (!video) return;
 
   const observer = new IntersectionObserver(
-    ([entry]) => {
+    async ([entry]) => {
       if (entry.isIntersecting) {
+        // ✅ Ensure it's unmuted and playing when in view
         video.muted = false;
-        video.play()
-          .then(() => {
-            setIsPlaying(true);
-            setIsMuted(false);
-          })
-          .catch((error) => {
-            console.error("Auto-play on reentry prevented:", error);
-          });
+        setIsMuted(false);
+
+        try {
+          await video.play();
+          setIsPlaying(true);
+        } catch (err) {
+          console.warn("Autoplay failed:", err);
+        }
       } else {
+        // 🔴 Out of view → pause and mute
         video.pause();
         video.muted = true;
-        setIsPlaying(false);
         setIsMuted(true);
+        setIsPlaying(false);
       }
     },
-    { threshold: 0.5 }
+    { threshold: 0.6 }
   );
 
   observer.observe(video);
 
   return () => {
-    observer.disconnect();
+    if (video) observer.unobserve(video);
   };
 }, []);
 

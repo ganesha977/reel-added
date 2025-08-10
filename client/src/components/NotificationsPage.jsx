@@ -42,14 +42,14 @@ const NotificationsPage = () => {
   };
 
   return (
-    <div className="ml-[16%] p-6 bg-gray-50 min-h-screen">
-      <h2 className="text-3xl font-bold mb-2">Notifications</h2>
+    <div className="min-h-screen bg-gray-50 pt-20 px-4   sm:px-6 md:px-8 lg:pl-72 lg:pr-16">
+      <h2 className="text-3xl font-bold mb-2 text-gray-900">Notifications</h2>
       <p className="text-gray-600 mb-6 text-sm">Stay updated with your activity</p>
 
-      {/* Like Notifications */}
+      {/* Likes Section */}
       {(localLikes?.length || 0) > 0 && (
-        <>
-          <h3 className="text-lg font-semibold mb-2 text-gray-700">Likes</h3>
+        <div className="mb-10">
+          <h3 className="text-lg font-semibold mb-4 text-gray-800 border-b pb-2">Likes</h3>
           {localLikes.map((notification) => (
             <div
               key={`like-${notification.userId}`}
@@ -61,8 +61,8 @@ const NotificationsPage = () => {
                 <AvatarFallback>U</AvatarFallback>
               </Avatar>
               <div>
-                <p className="text-sm">
-                  <span className="font-bold">{notification.userDetails?.username}</span>{' '}
+                <p className="text-sm text-gray-900">
+                  <span className="font-semibold">{notification.userDetails?.username}</span>{' '}
                   liked your post
                 </p>
                 <p className="text-xs text-gray-500">
@@ -73,13 +73,13 @@ const NotificationsPage = () => {
               </div>
             </div>
           ))}
-        </>
+        </div>
       )}
 
-      {/* Message Notifications */}
+      {/* Messages Section */}
       {(localMessages?.length || 0) > 0 && (
-        <>
-          <h3 className="text-lg font-semibold mb-2 text-gray-700">Messages</h3>
+        <div className="mb-10">
+          <h3 className="text-lg font-semibold mb-4 text-gray-800 border-b pb-2">Messages</h3>
           {localMessages.map((notification) => (
             <div
               key={`msg-${notification.userId}`}
@@ -91,8 +91,8 @@ const NotificationsPage = () => {
                 <AvatarFallback>U</AvatarFallback>
               </Avatar>
               <div>
-                <p className="text-sm">
-                  <span className="font-bold">{notification.userDetails?.username}</span>{' '}
+                <p className="text-sm text-gray-900">
+                  <span className="font-semibold">{notification.userDetails?.username}</span>{' '}
                   sent you a message
                 </p>
                 <p className="text-xs text-gray-500">
@@ -103,11 +103,11 @@ const NotificationsPage = () => {
               </div>
             </div>
           ))}
-        </>
+        </div>
       )}
 
       {(localLikes?.length || 0) === 0 && (localMessages?.length || 0) === 0 && (
-        <p className="text-sm text-gray-500">No new notifications.</p>
+        <p className="text-sm text-gray-500 mt-10">No new notifications.</p>
       )}
     </div>
   );

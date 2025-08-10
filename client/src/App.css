@@ -5,6 +5,18 @@
   text-align: center;
 }
 
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+
+
+
 .logo {
   height: 6em;
   padding: 1.5em;
@@ -19,7 +31,6 @@
 }
 
 
-/* //the story design  */
 
 
 

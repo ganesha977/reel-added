@@ -20,6 +20,7 @@ import ReelsPage from './components/ReelsPage';
 import Reel from './components/Reel';
 import Reels from './components/Reels';
 import UploadReel from './components/UploadReel';
+import StoryViewer from './components/StoryViewer';
 
 const browserRouter = createBrowserRouter([
   {
@@ -38,7 +39,12 @@ const browserRouter = createBrowserRouter([
     ]
   },
   { path: '/login', element: <Login /> },
-  { path: '/signup', element: <Signup /> }
+  { path: '/signup', element: <Signup /> },
+  { path: '/stories', element: <Stories /> },
+  { path: '/stories/:username', element: <StoryViewer /> },
+
+
+
 ]);
 
 function App() {

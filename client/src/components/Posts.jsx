@@ -7,9 +7,11 @@ const Posts = () => {
 
   return (
     <div className='w-full'>
-      {posts?.map(post => (
-        post && post._id && <Post key={post._id} post={post} />
-      ))}
+      {posts
+        ?.filter(post => post?.author) // ✅ Only keep posts with an author
+        .map(post => (
+          <Post key={post._id} post={post} />
+        ))}
     </div>
   );
 };

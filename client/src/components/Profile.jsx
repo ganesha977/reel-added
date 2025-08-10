@@ -115,9 +115,9 @@ const Profile = () => {
                   <span className="pl-1 text-xs">{userProfile?.username}</span>
                 </Badge>
                 <div className="space-y-1 text-sm">
-                  <div>🤯 Learn code with patel mernstack style</div>
-                  <div>🤯 Turing code into fun</div>
-                  <div>🤯 DM for collaboration</div>
+                  <div> Learn code with Rahul mernstack </div>
+                  <div>Turing code into Ui</div>
+                  <div> DM for collaboration</div>  
                 </div>
               </div>
             </div>

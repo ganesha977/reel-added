@@ -1,64 +1,53 @@
-import React, { useState, useRef } from 'react';
-import axios from 'axios';
-import { toast } from 'sonner';
-import { Loader2, CheckCircle } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState } from "react";
+import axios from "axios";
+import { toast } from "sonner";
+import { Loader2, CheckCircle, Upload } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 const UploadReel = () => {
-  const [caption, setCaption] = useState('');
+  const [caption, setCaption] = useState("");
   const [video, setVideo] = useState(null);
-  const [previewUrl, setPreviewUrl] = useState('');
+  const [preview, setPreview] = useState("");
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [success, setSuccess] = useState(false);
-  const videoRef = useRef();
 
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
+  const handleFile = (file) => {
+    if (!file) return;
     setVideo(file);
-    if (file) {
-      const url = URL.createObjectURL(file);
-      setPreviewUrl(url);
-    }
+    setPreview(URL.createObjectURL(file));
   };
 
-  const handleReelUpload = async (e) => {
+  const handleDrop = (e) => {
     e.preventDefault();
+    handleFile(e.dataTransfer.files[0]);
+  };
 
-    if (!caption || !video) {
-      toast.error('Caption and video are required');
-      return;
-    }
+  const uploadReel = async (e) => {
+    e.preventDefault();
+    if (!caption || !video) return toast.error("Caption & video required");
 
     const formData = new FormData();
-    formData.append('caption', caption);
-    formData.append('video', video);
+    formData.append("caption", caption);
+    formData.append("video", video);
 
     try {
       setUploading(true);
-      setSuccess(false);
-
-      const res = await axios.post(
-        'http://localhost:7777/api/v1/reel/add',
-        formData,
-        {
-          withCredentials: true,
-          headers: { 'Content-Type': 'multipart/form-data' },
-          onUploadProgress: (progressEvent) => {
-            const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-            setProgress(percent);
-          },
-        }
-      );
+      const res = await axios.post("http://localhost:7777/api/v1/reel/add", formData, {
+        withCredentials: true,
+        headers: { "Content-Type": "multipart/form-data" },
+        onUploadProgress: (e) =>
+          setProgress(Math.round((e.loaded * 100) / e.total)),
+      });
 
       toast.success(res.data.message);
-      setCaption('');
+      setCaption("");
       setVideo(null);
-      setPreviewUrl('');
+      setPreview("");
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
     } catch (err) {
-      toast.error(err?.response?.data?.message || 'Upload failed');
+      toast.error(err?.response?.data?.message || "Upload failed");
     } finally {
       setUploading(false);
       setProgress(0);
@@ -66,74 +55,81 @@ const UploadReel = () => {
   };
 
   return (
-    <div className="min-h-screen flex justify-center items-center p-4 bg-gradient-to-br from-pink-100 via-blue-100 to-purple-100">
+    <div className="min-h-screen flex justify-center items-center bg-white p-4">
       <form
-        onSubmit={handleReelUpload}
-        className="bg-white p-6 rounded-2xl shadow-2xl w-full max-w-md space-y-6"
+        onSubmit={uploadReel}
+        className="w-full max-w-md p-6 rounded-xl border border-gray-200 shadow-sm bg-white space-y-6"
       >
-        <h2 className="text-3xl font-bold text-center text-gray-800">📤 Upload New Reel</h2>
+        <h2 className="text-2xl font-bold text-center text-black">
+          Upload Reel
+        </h2>
 
-        <input
-          type="text"
-          placeholder="Write a cool caption..."
-          value={caption}
-          onChange={(e) => setCaption(e.target.value)}
-          className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-        />
-
-        <input
-          type="file"
-          accept="video/*"
-          onChange={handleFileChange}
-          className="w-full text-sm"
-        />
-
-        {previewUrl && (
-          <motion.video
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-            ref={videoRef}
-            src={previewUrl}
-            controls
-            className="w-full rounded-lg mt-2 max-h-72 object-cover border"
-          />
-        )}
-
-        {uploading && (
-          <>
-            <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-              <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: `${progress}%` }}
-                transition={{ ease: 'easeOut', duration: 0.2 }}
-                className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 h-full rounded-full shadow-md"
+        {/* Drag & Drop Zone */}
+        <div
+          onDrop={handleDrop}
+          onDragOver={(e) => e.preventDefault()}
+          className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-black transition"
+          onClick={() => document.getElementById("videoInput").click()}
+        >
+          {!preview ? (
+            <div className="flex flex-col items-center space-y-2 text-gray-500">
+              <Upload size={32} />
+              <p>Drag & Drop or Click to Select Video</p>
+              <input
+                id="videoInput"
+                type="file"
+                accept="video/*"
+                hidden
+                onChange={(e) => handleFile(e.target.files[0])}
               />
             </div>
-            <motion.p
-              className="text-center text-blue-600 font-semibold animate-pulse"
+          ) : (
+            <motion.video
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-            >
-              Uploading... {progress}%
-            </motion.p>
-          </>
+              src={preview}
+              controls
+              className="w-full rounded-lg shadow-sm max-h-72 object-cover"
+            />
+          )}
+        </div>
+
+        {/* Caption */}
+        <input
+          type="text"
+          placeholder="Write a caption..."
+          value={caption}
+          onChange={(e) => setCaption(e.target.value)}
+          className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:border-black"
+        />
+
+        {/* Progress */}
+        {uploading && (
+          <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+            <motion.div
+              animate={{ width: `${progress}%` }}
+              transition={{ ease: "easeOut", duration: 0.2 }}
+              className="bg-black h-full"
+            />
+          </div>
         )}
 
+        {/* Submit Button */}
         <button
           type="submit"
           disabled={uploading}
-          className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition disabled:opacity-60"
+          className="w-full flex items-center justify-center gap-2 p-3 rounded-lg bg-black text-white font-semibold hover:bg-gray-800 transition disabled:opacity-50"
         >
           {uploading ? (
             <>
               <Loader2 className="animate-spin w-5 h-5" /> Uploading...
             </>
           ) : (
-            'Upload Reel'
+            "Upload Reel"
           )}
         </button>
 
+        {/* Success Animation */}
         <AnimatePresence>
           {success && (
             <motion.div

@@ -14,6 +14,9 @@ import { Link } from "react-router-dom";
 import moment from "moment";
 
 const Post = ({ post }) => {  
+  // 🔹 Safety check: if no post or author, don't render anything
+  if (!post || !post.author) return null;
+
   const [text, setText] = useState("");
   const [open, setOpen] = useState(false);
   const { user } = useSelector((store) => store.auth);
@@ -145,7 +148,7 @@ const Post = ({ post }) => {
       }
     } catch (error) {
       console.log(error);
-      toast.error(error.response.data.message);
+      toast.error(error.response?.data?.message);
     }
   };
 
@@ -154,7 +157,7 @@ const Post = ({ post }) => {
   };
 
   return (
-    <div className="max-w-md mx-auto bg-white border border-gray-200 rounded-none mb-6">
+    <div className="max-w-md mx-auto rounded-none mb-6">
       {/* Header */}
       <div className="flex items-center justify-between p-3">
         <Link to={`/profile/${post?.author?._id}`}>

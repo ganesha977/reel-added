@@ -3,22 +3,34 @@ import axios from "axios";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 
-
 const useGetSuggestedUsers = () => {
     const dispatch = useDispatch();
+
     useEffect(() => {
         const fetchSuggestedUsers = async () => {
             try {
-                const res = await axios.get('http://localhost:7777/api/v1/user/suggested', { withCredentials: true });
-                if (res.data.success) { 
-                    console.log(res.data);  // Log the suggested users for debugging
-                    dispatch(setSuggestedUsers(res.data.users));
+                const res = await axios.get(
+                    'http://localhost:7777/api/v1/user/suggested',
+                    { withCredentials: true }
+                );
+
+                if (res.data.success) {
+                    const users = Array.isArray(res.data.users) ? res.data.users : [];
+                    
+                    // ✅ Backend empty bheje to bhi Redux clear ho jayega
+                    dispatch(setSuggestedUsers(users));
+                } else {
+                    // ❌ Agar API success false kare to bhi clear
+                    dispatch(setSuggestedUsers([]));
                 }
             } catch (error) {
                 console.log(error);
+                dispatch(setSuggestedUsers([])); // error me bhi clear
             }
-        }
+        };
+
         fetchSuggestedUsers();
-    }, []);
+    }, [dispatch]);
 };
+
 export default useGetSuggestedUsers;
