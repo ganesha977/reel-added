@@ -6,10 +6,11 @@ import { Link } from 'react-router-dom';
 import SuggestedUsers from './SuggestedUser';
 
 const RightSidebar = () => {
-  const {user} = useSelector(store => store.auth);
+  const { user } = useSelector(store => store.auth);
 
   return (
-    <div className='w-full lg:w-fit lg:my-10 lg:pr-32 px-4 lg:px-0 mb-20 lg:mb-0 '>
+    <div className='hidden md:block w-full lg:w-fit lg:my-10 lg:pr-32 px-4 lg:px-0 mb-20 lg:mb-0'>
+      {/* ✅ Hidden on small screens, visible from md+ */}
       <div className="flex items-center gap-3 mb-6">
         <Link to={`/profile/${user?._id}`}>
           <Avatar className="w-12 h-12">
@@ -25,7 +26,7 @@ const RightSidebar = () => {
           <span className="text-sm text-gray-500">{user?.bio || 'Bio here'}</span>
         </div>
       </div>
-      <SuggestedUsers/>
+      <SuggestedUsers />
     </div>
   )  
 }

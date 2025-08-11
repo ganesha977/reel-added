@@ -8,7 +8,7 @@ import { toast } from 'sonner';
 import axios from 'axios';
 import { setReels, setSelectedReel } from '@/redux/reelSlice';
 import { Link } from 'react-router-dom';
-import ReelCommentDialog from './ReelCommentDialog ';
+import ReelCommentOnlyDialog from './ReelCommentOnlyDialog';
 
 const ReelsPage = () => {
   const reelsContainerRef = useRef(null);
@@ -202,7 +202,10 @@ const ReelsPage = () => {
                 </button>
 
                 {/* Action Buttons */}
-                <div className="absolute right-4 bottom-24 z-20 flex flex-col items-center space-y-6 sm:right-6">
+             
+                {/* <div className="absolute right-4 bottom-24 z-20 flex flex-col items-center space-y-6 sm:right-6"> */}
+<div className="absolute right-1 bottom-24 z-20 flex flex-col items-center space-y-6">
+
                   {/* Like */}
                   <button
                     onClick={() => likeOrDislikeHandler(reel)}
@@ -298,7 +301,7 @@ const ReelsPage = () => {
         `}</style>
       </div>
 
-      <ReelCommentDialog open={commentDialogOpen} setOpen={setCommentDialogOpen} />
+      <ReelCommentOnlyDialog open={commentDialogOpen} setOpen={setCommentDialogOpen} />
     </div>
   );
 };

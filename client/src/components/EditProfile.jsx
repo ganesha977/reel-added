@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'sonner';
 import { setAuthUser } from '@/redux/authSlice';
+
 const EditProfile = () => {
     const imageref=useRef();
     const {user}=useSelector(store=>store.auth);
@@ -94,77 +95,76 @@ if (res.data.success) {
 }    
  }
   return (
-    <div className='flex max-w-2xl mx-auto pl-10'>
+    <div className='flex w-full max-w-2xl mx-auto px-4 sm:px-6 lg:px-10'>
 
-
-        <section className='flex flex-col   gap-6  w-full  my-8'>
-            <h1 className='font-bold text-xl'>Edit Profile</h1>
-            <div className="flex items-center   justify-between bg-gray-100 rounded-xl p-4">
+        <section className='flex flex-col gap-4 sm:gap-6 w-full my-4 sm:my-8'>
+            <h1 className='font-bold text-lg sm:text-xl'>Edit Profile</h1>
+            
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between bg-gray-100 rounded-xl p-3 sm:p-4 gap-3 sm:gap-0">
                 <div className="flex items-center gap-3">
+                    <Avatar className="h-12 w-12 sm:h-16 sm:w-16">
+                        <AvatarImage src={user?.profilePicture} alt="post-iamge" />
+                        <AvatarFallback>CN</AvatarFallback>
+                    </Avatar>    
 
-
-
-                    
-            <Avatar>
-                          <AvatarImage src={user?.profilePicture} alt="post-iamge" />
-              
-              <AvatarFallback>CN</AvatarFallback>
-           </Avatar>    
-
-      <div>
-
-            <h1 className='font-bold text-sm'>{user?.username}</h1>
-    <span  className='text-gray-600'>{user?.bio ||'bio here'}</span>
-
-    </div>
+                    <div className="flex-1 min-w-0">
+                        <h1 className='font-bold text-sm sm:text-base truncate'>{user?.username}</h1>
+                        <span className='text-gray-600 text-xs sm:text-sm line-clamp-2'>{user?.bio ||'bio here'}</span>
+                    </div>
                 </div>
 
-<input type="file"  ref={imageref} className='hidden'     onChange={filechngehandler} />
-<Button       onClick={()=>imageref?.current.click()} className='bg-[#0095F6] h-8 hover:bg-[#318bc7]' >change photo</Button>
-          </div>
+                <input type="file" ref={imageref} className='hidden' onChange={filechngehandler} />
+                <Button 
+                    onClick={()=>imageref?.current.click()} 
+                    className='bg-[#0095F6] h-8 sm:h-9 text-xs sm:text-sm px-3 sm:px-4 hover:bg-[#318bc7] w-full sm:w-auto'
+                >
+                    change photo
+                </Button>
+            </div>
 
-          <div>
-            <h1   className='font-bold text-xl mb-2'>
-                bio
-            </h1>
-            <Textarea        value={input.bio}       onChange={
-                (e)=>setInput({...input,bio:e.target.value})
-            } className='focus-visible:ring-transparent'  />
-          </div>
-          <div>
-            <h1   className='font-bold  mb-2'>
-gender
-            </h1>
+            <div className="space-y-2">
+                <h1 className='font-bold text-base sm:text-lg'>Bio</h1>
+                <Textarea 
+                    value={input.bio} 
+                    onChange={(e)=>setInput({...input,bio:e.target.value})} 
+                    className='focus-visible:ring-transparent min-h-[80px] sm:min-h-[100px] text-sm sm:text-base resize-none'
+                    placeholder="Write your bio here..."
+                />
+            </div>
 
-            <Select   defaultValue={input.gender} onValueChange={selectchangehandler}>
-                        <SelectTrigger className="w-full">
-                            <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectGroup>
-                                <SelectItem value="male">Male</SelectItem>
-                                <SelectItem value="female">Female</SelectItem>
-                            </SelectGroup>
-                        </SelectContent>
-                    </Select>
-          </div>
-         <div  className='flex justify-end'>
+            <div className="space-y-2">
+                <h1 className='font-bold text-base sm:text-lg'>Gender</h1>
+                <Select defaultValue={input.gender} onValueChange={selectchangehandler}>
+                    <SelectTrigger className="w-full h-10 sm:h-11 text-sm sm:text-base">
+                        <SelectValue placeholder="Select gender" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectGroup>
+                            <SelectItem value="male" className="text-sm sm:text-base">Male</SelectItem>
+                            <SelectItem value="female" className="text-sm sm:text-base">Female</SelectItem>
+                        </SelectGroup>
+                    </SelectContent>
+                </Select>
+            </div>
 
-       {
-        loading ?
-        (
-                 <Button className='w-fit bg-[#0095F6] h-8 hover:bg-[#318bc7]'>
-                    <Loader2  className='mr-2 h-4 w-4 animate-spin'/>
-                 please wait ...      
-            </Button>
-        ) :
-             <Button      onClick={editprofilehandler}  className='w-fit bg-[#0095F6] h-8 hover:bg-[#318bc7]'>
-                 submit      
-            </Button>
-       }
-         </div>
+            <div className='flex justify-center sm:justify-end pt-2 sm:pt-4'>
+                {
+                    loading ? (
+                        <Button className='w-full sm:w-fit bg-[#0095F6] h-10 sm:h-9 hover:bg-[#318bc7] text-sm sm:text-base px-6 sm:px-4'>
+                            <Loader2 className='mr-2 h-4 w-4 animate-spin'/>
+                            Please wait...      
+                        </Button>
+                    ) : (
+                        <Button 
+                            onClick={editprofilehandler} 
+                            className='w-full sm:w-fit bg-[#0095F6] h-10 sm:h-9 hover:bg-[#318bc7] text-sm sm:text-base px-6 sm:px-4'
+                        >
+                            Submit      
+                        </Button>
+                    )
+                }
+            </div>
         </section>
-
     </div>
   )
 }

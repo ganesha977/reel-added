@@ -184,7 +184,6 @@ const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // 🛑 Validate inputs
     if (!email || !password) {
       return res.status(401).json({
         message: "Something is missing, please check!",
@@ -256,6 +255,9 @@ const login = async (req, res) => {
       gender: user.gender,
       createdAt: user.createdAt,
     };
+
+    console.log("Token received:", req.cookies.token);
+console.log("JWT_SECRET used to verify   during login:", process.env.SECRET);
 
     // ✅ Set cookie and return response
     return res

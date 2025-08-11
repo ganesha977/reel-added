@@ -6,7 +6,7 @@ const Reels = () => {
   const { reels } = useSelector(store => store.reel)
 
   return (
-    <div className='w-full max-w-md lg:max-w-sm mx-auto px-4 lg:px-0'>
+    <div className='w-full'>
       {
         reels.map((reel) => (
           <Reel key={reel._id} reel={reel} />

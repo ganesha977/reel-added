@@ -11,8 +11,12 @@ import { toast } from "sonner";
 import axios from "axios";
 import { setPosts, setSelectedPost } from "@/redux/postSlice";
 import { Link } from "react-router-dom";
+import moment from "moment";
 
-const Post = ({ post }) => {
+const Post = ({ post }) => {  
+  // 🔹 Safety check: if no post or author, don't render anything
+  if (!post || !post.author) return null;
+
   const [text, setText] = useState("");
   const [open, setOpen] = useState(false);
   const { user } = useSelector((store) => store.auth);
@@ -42,6 +46,7 @@ const Post = ({ post }) => {
       if (res.data.success) {
         setIsFollowing((prev) => !prev);
         toast.success(res.data.message);
+        console.log("Post created at:", post?.createdAt);
       }
     } catch (error) {
       console.error("Follow/Unfollow Error:", error);
@@ -143,31 +148,39 @@ const Post = ({ post }) => {
       }
     } catch (error) {
       console.log(error);
-      toast.error(error.response.data.message);
+      toast.error(error.response?.data?.message);
     }
   };
 
+  const formatTimestamp = (timestamp) => {
+    return moment(timestamp).fromNow();
+  };
+
   return (
-    <div className="mb-6 w-full max-w-[470px] mx-auto lg:mx-0">
-      <div className="flex items-center justify-between mb-3">
-        <Link to={`/profile/${post?.author?._id}`} className="font-medium mr-2 hover:ring-transparent px-3 lg:px-0">
-          <div className="flex items-center gap-3">
+    <div className="max-w-md mx-auto rounded-none mb-6">
+      {/* Header */}
+      <div className="flex items-center justify-between p-3">
+        <Link to={`/profile/${post?.author?._id}`}>
+          <div className="flex items-center space-x-3">
             <Avatar className="w-8 h-8">
               <AvatarImage src={post?.author?.profilePicture} alt="post-image" />
               <AvatarFallback>CN</AvatarFallback>
             </Avatar>
-            <div className="flex items-center gap-2">
-              <h1 className="font-semibold text-sm">{post?.author?.username}</h1>
+            <div className="flex items-center space-x-1">
+              <span className="font-semibold text-sm text-black">{post?.author?.username}</span>
               {user?._id === post?.author?._id && (
                 <Badge variant='secondary' className="text-xs">Author</Badge>
               )}
+              <span className="text-gray-500 text-sm">• {formatTimestamp(post?.createdAt)}</span>
             </div>
           </div>
         </Link>
-
+        
         <Dialog>
           <DialogTrigger asChild>
-            <MoreHorizontal className="cursor-pointer mr-3 lg:mr-0" />
+            <button className="p-1">
+              <MoreHorizontal className="w-5 h-5 text-gray-600" />
+            </button>
           </DialogTrigger>
           <DialogContent className="bg-white text-black flex flex-col items-center text-sm text-center">
             {user && user._id !== post?.author?._id && (
@@ -204,14 +217,18 @@ const Post = ({ post }) => {
         </Dialog>
       </div>
 
-      <img
-        className="w-full aspect-square object-cover border border-gray-200 lg:rounded-lg bg-black"
-        src={post.image}
-        alt="post_img"
-      />
+      {/* Image Container */}
+      <div className="relative bg-black aspect-square overflow-hidden">
+        <img
+          className="w-full h-full object-cover"
+          src={post.image}
+          alt="post_img"
+        />
+      </div>
 
-      <div className="flex items-center justify-between my-3 px-3 lg:px-0">
-        <div className="flex items-center gap-4">
+      {/* Action Buttons */}
+      <div className="flex items-center justify-between p-3">
+        <div className="flex items-center space-x-4">
           {liked ? (
             <FaHeart
               size={24}
@@ -221,14 +238,14 @@ const Post = ({ post }) => {
           ) : (
             <FaRegHeart
               size={24}
-              className="text-gray-800 cursor-pointer hover:scale-110 transition-transform"
+              className="text-black cursor-pointer hover:scale-110 transition-transform"
               onClick={likeordislikeHandler}
             />
           )}
 
           <MessageCircle
             size={24}
-            className="cursor-pointer hover:text-gray-600 hover:scale-110 transition-transform"
+            className="text-black cursor-pointer hover:scale-110 transition-transform"
             onClick={() => {
               dispatch(setSelectedPost(post));
               setOpen(true);
@@ -237,53 +254,77 @@ const Post = ({ post }) => {
 
           <Send
             size={24}
-            className="cursor-pointer hover:text-gray-600 hover:scale-110 transition-transform"
+            className="text-black cursor-pointer hover:scale-110 transition-transform"
           />
         </div>
         <Bookmark
           size={24}
           onClick={bookmarkhandler}
-          className="cursor-pointer hover:text-gray-600 hover:scale-110 transition-transform"
+          className="text-black cursor-pointer hover:scale-110 transition-transform"
         />
       </div>
 
-      <div className="px-3 lg:px-0">
-        <span className="font-semibold text-sm">{postlike} likes</span>
-        <p className="text-sm mt-1">
-          <span className="font-semibold mr-2">{post?.author?.username}</span>
-          {post.caption}
-        </p>
-        {comment.length > 0 && (
-          <span
-            className="cursor-pointer text-sm text-gray-500 mt-2 block"
+      {/* Likes Count */}
+      <div className="px-3 pb-2">
+        <span className="font-semibold text-sm text-black">
+          {postlike.toLocaleString()} likes
+        </span>
+      </div>
+
+      {/* Caption */}
+      <div className="px-3 pb-2">
+        <span className="font-semibold text-sm text-black">{post?.author?.username}</span>
+        <span className="text-sm text-black ml-2">{post?.caption}</span>
+        <button className="text-gray-500 text-sm ml-2">... more</button>
+      </div>
+
+      {/* Comments */}
+      {comment.length > 0 && (
+        <div className="px-3 pb-2">
+          <button 
+            className="text-gray-500 text-sm"
             onClick={() => {
               dispatch(setSelectedPost(post));
               setOpen(true);
             }}
           >
             View all {comment.length} comments
-          </span>
-        )}
-      </div>
+          </button>
+          {comment.slice(0, 2).map((commentItem) => (
+            <div key={commentItem._id} className="mt-1">
+              <span className="font-semibold text-sm text-black">{commentItem.author?.username}</span>
+              <span className="text-sm text-black ml-2">{commentItem.text}</span>
+            </div>
+          ))}
+        </div>
+      )}
 
+      {/* Comment Dialog */}
       <CommentDailogue open={open} setOpen={setOpen} />
 
-      <div className="flex items-center justify-between mt-3 px-3 lg:px-0">
-        <input
-          type="text"
-          placeholder="Add a comment..."
-          value={text}
-          onChange={changechangehandler}
-          className="outline-none text-sm w-full bg-transparent"
-        />
-        {text && (
-          <span
-            className="text-[#3BADF9] cursor-pointer font-semibold text-sm"
-            onClick={commentHandler}
-          >
-            Post
-          </span>
-        )}
+      {/* Add Comment */}
+      <div className="px-3 pb-3 border-t border-gray-100 pt-3">
+        <div className="flex items-center space-x-3">
+          <Avatar className="w-8 h-8">
+            <AvatarImage src={user?.profilePicture} />
+            <AvatarFallback>CN</AvatarFallback>
+          </Avatar>
+          <input
+            type="text"
+            placeholder="Add a comment..."
+            value={text}
+            onChange={changechangehandler}
+            className="flex-1 text-sm border-none outline-none bg-transparent placeholder-gray-500"
+          />
+          {text && (
+            <button
+              className="text-blue-500 text-sm font-semibold"
+              onClick={commentHandler}
+            >
+              Post
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
