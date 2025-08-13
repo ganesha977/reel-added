@@ -1,0 +1,10 @@
+flask
+transformers
+torch
+
+
+
+transformers>=4.30.0
+
+pillow
+requests
