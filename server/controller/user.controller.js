@@ -211,7 +211,7 @@ const login = async (req, res) => {
 
     // 🧠 Create token
     const token = jwt.sign({ userId: user._id }, process.env.SECRET, {
-      expiresIn: "1d",
+      expiresIn: "7d",
     });
 
     // ✅ Populate posts
@@ -471,6 +471,22 @@ const followOrUnfollow = async (req, res) => {
 
 
 
+
+
+
+const searchUsers = async (req, res) => {
+  try {
+    const query = req.query.query;
+    const users = await User.find({
+      username: { $regex: query, $options: "i" }
+    }).select("_id username profilePic");
+    res.json({ success: true, users });
+  } catch {
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+
 module.exports = {
 
 
@@ -480,5 +496,6 @@ module.exports = {
   getProfile,
   editProfile,
   getsuggesteduser,
-  followOrUnfollow
+  followOrUnfollow,
+  searchUsers
 };

@@ -10,7 +10,6 @@ const RightSidebar = () => {
 
   return (
     <div className='hidden md:block w-full lg:w-fit lg:my-10 lg:pr-32 px-4 lg:px-0 mb-20 lg:mb-0'>
-      {/* ✅ Hidden on small screens, visible from md+ */}
       <div className="flex items-center gap-3 mb-6">
         <Link to={`/profile/${user?._id}`}>
           <Avatar className="w-12 h-12">

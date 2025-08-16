@@ -14,7 +14,6 @@ import { Link } from "react-router-dom";
 import moment from "moment";
 
 const Post = ({ post }) => {  
-  // 🔹 Safety check: if no post or author, don't render anything
   if (!post || !post.author) return null;
 
   const [text, setText] = useState("");
@@ -226,7 +225,6 @@ const Post = ({ post }) => {
         />
       </div>
 
-      {/* Action Buttons */}
       <div className="flex items-center justify-between p-3">
         <div className="flex items-center space-x-4">
           {liked ? (
@@ -264,21 +262,18 @@ const Post = ({ post }) => {
         />
       </div>
 
-      {/* Likes Count */}
       <div className="px-3 pb-2">
         <span className="font-semibold text-sm text-black">
           {postlike.toLocaleString()} likes
         </span>
       </div>
 
-      {/* Caption */}
       <div className="px-3 pb-2">
         <span className="font-semibold text-sm text-black">{post?.author?.username}</span>
         <span className="text-sm text-black ml-2">{post?.caption}</span>
         <button className="text-gray-500 text-sm ml-2">... more</button>
       </div>
 
-      {/* Comments */}
       {comment.length > 0 && (
         <div className="px-3 pb-2">
           <button 
@@ -299,10 +294,8 @@ const Post = ({ post }) => {
         </div>
       )}
 
-      {/* Comment Dialog */}
       <CommentDailogue open={open} setOpen={setOpen} />
 
-      {/* Add Comment */}
       <div className="px-3 pb-3 border-t border-gray-100 pt-3">
         <div className="flex items-center space-x-3">
           <Avatar className="w-8 h-8">

@@ -55,6 +55,7 @@ const UploadReel = () => {
   };
 
   return (
+
     <div className="min-h-screen flex justify-center items-center bg-white p-4">
       <form
         onSubmit={uploadReel}
@@ -64,7 +65,6 @@ const UploadReel = () => {
           Upload Reel
         </h2>
 
-        {/* Drag & Drop Zone */}
         <div
           onDrop={handleDrop}
           onDragOver={(e) => e.preventDefault()}
@@ -94,7 +94,6 @@ const UploadReel = () => {
           )}
         </div>
 
-        {/* Caption */}
         <input
           type="text"
           placeholder="Write a caption..."
@@ -103,7 +102,6 @@ const UploadReel = () => {
           className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:border-black"
         />
 
-        {/* Progress */}
         {uploading && (
           <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
             <motion.div
@@ -114,7 +112,6 @@ const UploadReel = () => {
           </div>
         )}
 
-        {/* Submit Button */}
         <button
           type="submit"
           disabled={uploading}
@@ -129,7 +126,6 @@ const UploadReel = () => {
           )}
         </button>
 
-        {/* Success Animation */}
         <AnimatePresence>
           {success && (
             <motion.div

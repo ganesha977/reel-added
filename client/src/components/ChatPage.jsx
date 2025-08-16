@@ -21,7 +21,7 @@ const [textMessage,settextMessage]=useState('');
 
 const sendmsg = async (receiverId) => {
 try {
-if (!textMessage.trim()) return; // prevent sending empty message
+if (!textMessage.trim()) return; 
 
 
   const res = await axios.post(
@@ -37,7 +37,7 @@ if (!textMessage.trim()) return; // prevent sending empty message
 
   if (res.data.success) {
     dispatch(setMessages([...messages, res.data.newMessage]));
-    settextMessage(''); // clear input
+    settextMessage(''); 
   }
 } catch (error) {
   console.error("Send Message Error:", error);

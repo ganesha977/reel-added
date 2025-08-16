@@ -17,15 +17,13 @@ const useGetSuggestedUsers = () => {
                 if (res.data.success) {
                     const users = Array.isArray(res.data.users) ? res.data.users : [];
                     
-                    // ✅ Backend empty bheje to bhi Redux clear ho jayega
                     dispatch(setSuggestedUsers(users));
                 } else {
-                    // ❌ Agar API success false kare to bhi clear
                     dispatch(setSuggestedUsers([]));
                 }
             } catch (error) {
                 console.log(error);
-                dispatch(setSuggestedUsers([])); // error me bhi clear
+                dispatch(setSuggestedUsers([])); 
             }
         };
 

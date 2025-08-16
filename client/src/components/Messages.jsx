@@ -25,7 +25,6 @@ const Messages = ({ selectedUser, isTyping }) => {
    <div className="flex flex-col flex-grow min-h-0 overflow-hidden">
   <div className="overflow-y-auto p-3 space-y-4 flex-grow">
 
-        {/* Header */}
         <div className="flex justify-center">
           <div className="flex flex-col items-center">
             <Avatar className="h-14 w-14 md:h-16 md:w-16">
@@ -41,14 +40,12 @@ const Messages = ({ selectedUser, isTyping }) => {
           </div>
         </div>
 
-        {/* Typing */}
         {isTyping && (
           <div className="text-center text-sm text-gray-400 italic">
             Typing...
           </div>
         )}
 
-        {/* Messages */}
         <div className="flex flex-col gap-2">
           {messages.map((m) => {
             const date = moment(m.createdAt).format("YYYY-MM-DD");
@@ -95,7 +92,6 @@ const Messages = ({ selectedUser, isTyping }) => {
           })}
         </div>
 
-        {/* Scroll Target */}
         <div ref={messagesEndRef} />
       </div>
     </div>

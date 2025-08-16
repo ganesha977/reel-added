@@ -66,7 +66,6 @@ const ReelCommentOnlyDialog = ({ open, setOpen }) => {
     <div className="fixed inset-0 z-50 bg-black/40 flex items-end md:items-center justify-center md:justify-center">
       <div className="bg-white w-full md:w-[400px] max-h-[80%] rounded-t-xl md:rounded-xl overflow-hidden shadow-2xl flex flex-col">
         
-        {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b">
           <h2 className="text-base font-semibold">Comments</h2>
           <div className="flex items-center gap-2">
@@ -81,7 +80,6 @@ const ReelCommentOnlyDialog = ({ open, setOpen }) => {
           </div>
         </div>
 
-        {/* Comment List */}
         <div className="flex-1 px-4 py-4 overflow-y-auto space-y-4 custom-scroll">
           {comments.length === 0 ? (
             <p className="text-gray-500 text-sm text-center mt-8">No comments yet.</p>
@@ -105,7 +103,6 @@ const ReelCommentOnlyDialog = ({ open, setOpen }) => {
           )}
         </div>
 
-        {/* Input Field */}
         <div className="border-t px-4 py-3">
           <div className="flex items-center gap-3">
             <img

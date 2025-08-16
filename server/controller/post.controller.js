@@ -7,15 +7,9 @@ const { getReceiverSocketId ,io} = require("../Socket.js");
 const axios = require('axios');
 
 
-const { generateImageCaption } = require("../utils/captionUtils"); 
-const fs = require("fs");
-const path = require("path");
-const { isCommentToxic } = require("../utils/toxic.js");
-
-
-
 const addnewpost = async (req, res) => {
   try {
+    const { caption } = req.body;
     const image = req.file;
     const authorId = req.id;
 
@@ -23,34 +17,14 @@ const addnewpost = async (req, res) => {
       return res.status(400).json({ msg: "Please upload an image" });
     }
 
-    // 1️⃣ Optimize image
     const optimizedimagebuffer = await sharp(image.buffer)
       .resize({ width: 800, height: 800 })
       .toFormat("jpeg", { quality: 80 })
       .toBuffer();
 
-    // 2️⃣ Ensure temp folder exists
-    const tempDir = path.join(__dirname, "../temp");
-    if (!fs.existsSync(tempDir)) {
-      fs.mkdirSync(tempDir);
-    }
-
-    // 3️⃣ Save optimized image temporarily
-    const tempImagePath = path.join(tempDir, `${Date.now()}-post.jpg`);
-    fs.writeFileSync(tempImagePath, optimizedimagebuffer);
-
-    // 4️⃣ Generate caption from Python API
-    let caption = "";
-    const captionResult = await generateImageCaption(tempImagePath);
-    if (captionResult && captionResult.caption) {
-      caption = captionResult.caption;
-    }
-
-    // 5️⃣ Upload optimized image to Cloudinary
     const fileuri = `data:image/jpeg;base64,${optimizedimagebuffer.toString("base64")}`;
     const cloudResponse = await Cloudinary.uploader.upload(fileuri);
 
-    // 6️⃣ Create post in DB
     const post = await Post.create({
       caption,
       image: cloudResponse.secure_url,
@@ -61,7 +35,6 @@ const addnewpost = async (req, res) => {
       return res.status(500).json({ message: "Post creation failed", success: false });
     }
 
-    // 7️⃣ Link post to user
     const user = await User.findById(authorId);
     if (user) {
       user.posts.push(post._id);
@@ -70,19 +43,18 @@ const addnewpost = async (req, res) => {
 
     await post.populate({ path: "author", select: "-password" });
 
-    // 8️⃣ Delete temp file
-    fs.unlinkSync(tempImagePath);
-
     return res.status(201).json({
       message: "new post added",
       post,
       success: true,
     });
   } catch (error) {
-    console.error("Error in addnewpost:", error);
+    console.error(error);
     res.status(500).json({ message: "Internal Server Error", success: false });
   }
 };
+
+
 
 
 
@@ -148,11 +120,9 @@ const likepost = async (req, res) => {
 
     await post.updateOne({ $addToSet: { likes: likekarnewalakId } });
     await post.save();
-    //implement socket for notification 
     const user=await User.findById(likekarnewalakId).select('username profilePicture');
     const PostownerId=  post.author.toString();
     if(PostownerId!==likekarnewalakId){
-//emit a notification event
 const notification={
   type:'like',
   userId:likekarnewalakId,
@@ -183,7 +153,6 @@ const dislikePost = async (req, res) => {
     await post.save();
 
 
-    //implement you r real time notifcation
      const user=await User.findById(likekarnewalakId).select('username profilePicture');
     const PostownerId=  post.author.toString();
     if(PostownerId!==likekarnewalakId){
@@ -207,58 +176,7 @@ io.to(postOwnersocketId).emit('notification',notification)
   }
 };
 
-// const Addcomment = async (req, res) => {
-//   try {
-//     const postId = req.params.id;
-//     const commentAuthorId = req.id;
-//     const { text } = req.body;
 
-//     if (!text) {
-//       return res.status(400).json({ message: "Comment text is required", success: false });
-//     }
-
-//     const post = await Post.findById(postId);
-//     if (!post) {
-//       return res.status(404).json({ message: "Post not found", success: false });
-//     }
-
-//     let comment = await Comment.create({
-//       text,
-//       post: postId,
-//       author: commentAuthorId
-//     });
-
-//     comment = await comment.populate({ path: "author", select: "username profilePicture" });
-
-//     post.comments.push(comment._id);
-//     await post.save();
-
-//     // 🔹 Send socket notification to post owner
-//     const PostOwnerId = post.author.toString();
-//     if (PostOwnerId !== commentAuthorId) {
-//       const commenterUser = await User.findById(commentAuthorId).select("username profilePicture");
-
-//       const notification = {
-//         type: "comment",
-//         userId: commentAuthorId,
-//         userDetails: commenterUser,
-//         postId,
-//         message: `commented on your post: "${text}"`
-//       };
-
-//       const postOwnerSocketId = getReceiverSocketId(PostOwnerId);
-//       if (postOwnerSocketId) {
-//         io.to(postOwnerSocketId).emit("commentNotification", notification);
-//       }
-//     }
-
-//     res.status(201).json({ message: "Comment added", comment, success: true });
-
-//   } catch (error) {
-//     console.log(error);
-//     res.status(500).json({ message: "Internal Server Error", success: false });
-//   }
-// };
 
 const Addcomment = async (req, res) => {
   try {
@@ -270,13 +188,6 @@ const Addcomment = async (req, res) => {
       return res.status(400).json({ message: "Comment text is required", success: false });
     }
 
-    // 🔹 Step 1: Check toxicity using the helper
-    const toxic = await isCommentToxic(text);
-    if (toxic) {
-      return res.status(400).json({ message: "Comment blocked: toxic content detected", success: false });
-    }
-
-    // 🔹 Step 2: Continue with comment save logic
     const post = await Post.findById(postId);
     if (!post) {
       return res.status(404).json({ message: "Post not found", success: false });
@@ -293,7 +204,7 @@ const Addcomment = async (req, res) => {
     post.comments.push(comment._id);
     await post.save();
 
-    // 🔹 Send socket notification
+    // 🔹 Send socket notification to post owner
     const PostOwnerId = post.author.toString();
     if (PostOwnerId !== commentAuthorId) {
       const commenterUser = await User.findById(commentAuthorId).select("username profilePicture");
@@ -315,11 +226,11 @@ const Addcomment = async (req, res) => {
     res.status(201).json({ message: "Comment added", comment, success: true });
 
   } catch (error) {
+    console.log(error);
     res.status(500).json({ message: "Internal Server Error", success: false });
-   
-  return console.log(error);
   }
 };
+
 
 
 

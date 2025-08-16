@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import axios from 'axios';
 import { useDispatch } from 'react-redux';
-import { setUserStories } from '@/redux/storySlice'; // Adjust path as needed
+import { setUserStories } from '@/redux/storySlice'; 
 import { toast } from 'sonner';
 
 const useGetAllStories = (userId) => {

@@ -48,7 +48,7 @@ const Signup = () => {
       }
     } catch (error) {
       if (error.response?.data?.message) {
-        toast.error(error.response.data.message); // Will show: "Try different email"
+        toast.error(error.response.data.message); 
       } else {
         toast.error("Something went wrong, please try again.");
       }

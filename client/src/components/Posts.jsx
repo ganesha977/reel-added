@@ -8,7 +8,7 @@ const Posts = () => {
   return (
     <div className='w-full'>
       {posts
-        ?.filter(post => post?.author) // ✅ Only keep posts with an author
+        ?.filter(post => post?.author) 
         .map(post => (
           <Post key={post._id} post={post} />
         ))}

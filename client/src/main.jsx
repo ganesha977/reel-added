@@ -13,7 +13,6 @@ import { persistStore } from 'redux-persist'
 
 
 
-//store persistor
 const persistor = persistStore(store);
 
 

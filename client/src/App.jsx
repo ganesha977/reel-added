@@ -17,11 +17,12 @@ import ProtectedRoutes from './components/ProtectedRoutes';
 import NotificationsPage from './components/NotificationsPage';
 import Stories from './components/Stories';
 import ReelsPage from './components/ReelsPage';
-import Reel from './components/Reel';
+
 import Reels from './components/Reels';
 import UploadReel from './components/UploadReel';
 import StoryViewer from './components/StoryViewer';
 import { setCommentNotification } from './redux/commentSlice';
+import SearchPage from './components/SearchPage';
 
 const browserRouter = createBrowserRouter([
   {
@@ -42,7 +43,13 @@ const browserRouter = createBrowserRouter([
   { path: '/login', element: <Login /> },
   { path: '/signup', element: <Signup /> },
   { path: '/stories', element: <Stories /> },
+  { path: '/search', element: <SearchPage/> },
+
+
+
   { path: '/stories/:username', element: <StoryViewer /> },
+
+
 
 
 
@@ -70,13 +77,12 @@ function App() {
         dispatch(setLikeNotification(notification));
       });
 
+  socketio.on('commentNotification', (notification) => {
+      dispatch(setCommentNotification(notification));
+    });
 
 
 
-
-socketio.on('commentNotification', (comment) => {
-  dispatch(setCommentNotification(comment));
-});
 
 
       socketio.on('message', (message) => {

@@ -1,37 +1,51 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import stories from '../data/stories';
-import { X, Play, Pause } from 'lucide-react';
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { X, Play, Pause, Trash2 } from "lucide-react";
+import { getUserStories, deleteStory } from "../api/storyApi";
+import { useSelector } from "react-redux";
 
 const StoryViewer = () => {
   const { username } = useParams();
   const navigate = useNavigate();
+  const { user } = useSelector((state) => state.auth); // logged-in user
 
-  const currentIndex = stories.findIndex((s) => s.username === username);
-  const story = stories[currentIndex];
-
+  const [stories, setStories] = useState([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
   const [progress, setProgress] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
 
   useEffect(() => {
-    if (!story || isPaused) return;
+    const fetchStories = async () => {
+      try {
+        const { data } = await getUserStories(username);
+        setStories(data.stories || []);
+      } catch (err) {
+        console.error("Error fetching user stories:", err);
+      }
+    };
+    fetchStories();
+  }, [username]);
 
+  const story = stories[currentIndex];
+
+  // Progress bar auto-play
+  useEffect(() => {
+    if (!story || isPaused) return;
     const interval = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 100) {
+      setProgress((p) => {
+        if (p >= 100) {
           handleNext();
           return 0;
         }
-        return prev + 2;
+        return p + 2;
       });
     }, 100);
-
     return () => clearInterval(interval);
   }, [story, isPaused]);
 
   const handleNext = () => {
     if (currentIndex < stories.length - 1) {
-      navigate(`/stories/${stories[currentIndex + 1].username}`);
+      setCurrentIndex((i) => i + 1);
       setProgress(0);
     } else {
       handleClose();
@@ -40,29 +54,27 @@ const StoryViewer = () => {
 
   const handlePrev = () => {
     if (currentIndex > 0) {
-      navigate(`/stories/${stories[currentIndex - 1].username}`);
+      setCurrentIndex((i) => i - 1);
       setProgress(0);
     }
   };
 
-  const handleClose = () => {
-    navigate('/');
-  };
+  const handleClose = () => navigate("/");
 
-  // Listen for keyboard events
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === 'ArrowRight') {
-        handleNext();
-      } else if (e.key === 'ArrowLeft') {
-        handlePrev();
-      } else if (e.key === 'Escape') {
+  const handleDelete = async (id) => {
+    try {
+      await deleteStory(id);
+      setStories((prev) => prev.filter((s) => s._id !== id));
+      if (stories.length <= 1) {
         handleClose();
+      } else {
+        setCurrentIndex(0);
+        setProgress(0);
       }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  });
+    } catch (err) {
+      console.error("Error deleting story:", err);
+    }
+  };
 
   if (!story) {
     return (
@@ -71,6 +83,8 @@ const StoryViewer = () => {
       </div>
     );
   }
+
+  const isVideo = story.image?.match(/\.(mp4|webm|ogg)$/i);
 
   return (
     <div
@@ -96,38 +110,57 @@ const StoryViewer = () => {
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-full border border-white p-0.5">
               <img
-                src={story.avatar}
-                alt={story.username}
+                src={story.author.profilePicture}
+                alt={story.author.username}
                 className="w-full h-full object-cover rounded-full"
               />
             </div>
-            <p className="text-white text-sm font-medium">{story.username}</p>
+            <p className="text-white text-sm font-medium">{story.author.username}</p>
           </div>
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => setIsPaused(!isPaused)}
-              className="text-white"
-            >
+            <button onClick={() => setIsPaused(!isPaused)} className="text-white">
               {isPaused ? <Play size={20} /> : <Pause size={20} />}
             </button>
             <button onClick={handleClose} className="text-white">
               <X size={24} />
             </button>
+            {/* Show delete button only if logged-in user is author */}
+            {user?._id === story.author._id && (
+              <button
+                onClick={() => handleDelete(story._id)}
+                className="text-red-400"
+              >
+                <Trash2 size={20} />
+              </button>
+            )}
           </div>
         </div>
 
-        {/* Story Image */}
-        <img src={story.image} alt="story" className="w-full h-full object-cover" />
-
-        {/* Caption */}
-        {story.text && (
-          <div className="absolute bottom-20 px-4 text-center text-white">
-            <p className="text-lg font-medium">{story.text}</p>
-            {story.mention && (
-              <p className="text-blue-400 text-sm mt-1">{story.mention}</p>
-            )}
-          </div>
+        {/* Story Media */}
+        {isVideo ? (
+          <video
+            src={story.image}
+            controls
+            autoPlay
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <img
+            src={story.image}
+            alt="story"
+            className="w-full h-full object-cover"
+          />
         )}
+
+        {/* Navigation zones (for desktop & mobile tap) */}
+        <div
+          className="absolute left-0 top-0 w-1/3 h-full cursor-pointer"
+          onClick={handlePrev}
+        />
+        <div
+          className="absolute right-0 top-0 w-1/3 h-full cursor-pointer"
+          onClick={handleNext}
+        />
       </div>
     </div>
   );

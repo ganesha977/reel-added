@@ -3,33 +3,41 @@ import { createSlice } from "@reduxjs/toolkit";
 const commentSlice = createSlice({
   name: "commentNotification",
   initialState: {
-    commentNotifications: [],
+    commentNotification: [],
   },
   reducers: {
-    // ✅ Add a new comment notification
     setCommentNotification: (state, action) => {
-      state.commentNotifications.push(action.payload);
+      const { notificationId } = action.payload;
+
+      if (!Array.isArray(state.commentNotification)) {
+        state.commentNotification = [];
+      }
+
+      // Always push new comment notifications
+      state.commentNotification = [
+        ...state.commentNotification,
+        action.payload,
+      ];
     },
 
-    // ✅ Remove a single comment notification by commentId
-    removeCommentNotification: (state, action) => {
-      const commentId = action.payload;
-      state.commentNotifications = state.commentNotifications.filter(
-        (item) => item.id !== commentId
-      );
-    },
-
-    // ✅ Clear all comment notifications
     clearCommentNotifications: (state) => {
-      state.commentNotifications = [];
+      state.commentNotification = [];
+    },
+
+    removeCommentNotification: (state, action) => {
+      state.commentNotification = state.commentNotification.filter(
+        (n) => n.notificationId !== action.payload
+      );
     },
   },
 });
 
+// ✅ Export actions
 export const {
   setCommentNotification,
-  removeCommentNotification,
   clearCommentNotifications,
+  removeCommentNotification,
 } = commentSlice.actions;
 
+// ✅ Export reducer
 export default commentSlice.reducer;

@@ -34,7 +34,6 @@ useEffect(() => {
   const observer = new IntersectionObserver(
     async ([entry]) => {
       if (entry.isIntersecting) {
-        // ✅ Ensure it's unmuted and playing when in view
         video.muted = false;
         setIsMuted(false);
 
@@ -45,7 +44,6 @@ useEffect(() => {
           console.warn("Autoplay failed:", err);
         }
       } else {
-        // 🔴 Out of view → pause and mute
         video.pause();
         video.muted = true;
         setIsMuted(true);
@@ -63,7 +61,6 @@ useEffect(() => {
 }, []);
 
 
-  // --- Pause video when comment dialog is opened ---
   useEffect(() => {
     const video = videoRef.current;
     if (open && video) {
@@ -72,7 +69,6 @@ useEffect(() => {
     }
   }, [open]);
 
-  // --- Video events sync ---
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
@@ -244,8 +240,7 @@ useEffect(() => {
   };
 
   return (
-    <div className="max-w-md mx-auto bg-white border border-gray-200 rounded-none mb-6">
-      {/* Header */}
+    <div className="max-w-md mx-auto  rounded-none mb-6">
       <div className="flex items-center justify-between p-3">
         <Link to={`/profile/${reel?.author?._id}`}>
           <div className="flex items-center space-x-3">
@@ -319,7 +314,6 @@ useEffect(() => {
         )}
       </div>
 
-      {/* Actions */}
       <div className="flex items-center justify-between p-3">
         <div className="flex items-center space-x-4">
           {liked ? (
