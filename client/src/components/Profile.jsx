@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
-import useGetUserProfile from '@/hooks/useGetUserProfile';
 import { Link, useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { Button } from './ui/button';
@@ -8,6 +7,7 @@ import { Badge } from './ui/badge';
 import { AtSign, Heart, MessageCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import axios from 'axios';
+import useGetUserProfile from '@/hooks/UseGetUserProfile';
 
 const Profile = () => {
   const { id: userId } = useParams();
@@ -28,7 +28,7 @@ const Profile = () => {
   const handleFollowOrUnfollow = async () => {
     try {
       const res = await axios.post(
-        `http://localhost:7777/api/v1/user/followorunfollow/${userProfile?._id}`,
+        `https://reel-server.onrender.com/api/v1/user/followorunfollow/${userProfile?._id}`,
         {},
         { withCredentials: true }
       );
@@ -140,8 +140,8 @@ const Profile = () => {
             ))}
           </div>
 
-          {/* Content Grid */}
-          <div className="grid grid-cols-3 gap-0.5 sm:gap-1 mt-4">
+          
+          <div className="grid grid-cols-3 gap-0.5 sm:gap-1 mt-4  ml-9">
             {displayedPost?.length > 0 ? (
               displayedPost.map(item => (
                 <div key={item._id} className="relative group cursor-pointer">

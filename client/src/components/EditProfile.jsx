@@ -66,7 +66,7 @@ if(input.profilePhoto){
 
 try {
     setLoading(true);
-const res = await axios.post(`http://localhost:7777/api/v1/user/profile/edit`, formdata, {
+const res = await axios.post(`https://reel-server.onrender.com/api/v1/user/profile/edit`, formdata, {
   headers: {
     'Content-Type': 'multipart/form-data',
   },

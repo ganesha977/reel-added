@@ -10,7 +10,7 @@ const useGetAllReels = () => {
   useEffect(() => {
     const fetchReels = async () => {
       try {
-        const res = await axios.get('http://localhost:7777/api/v1/reel/all', {
+        const res = await axios.get('https://reel-server.onrender.com/api/v1/reel/all', {
           withCredentials: true,
         });
 

@@ -19,10 +19,13 @@ require("./controller/story.controller");
 const { app, server } = require("./Socket");
 
 
-const port = 7777;
+const PORT = process.env.PORT || 7777;
 
 const corsOptions = {
-  origin: "http://localhost:5173",
+  origin: [
+    "http://localhost:5173", // Local dev
+    "https://social-mediagram.netlify.app", // deployed frontend
+  ],
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
@@ -46,6 +49,6 @@ app.get("/", (req, res) => {
   console.log("home");
 });
 
-server.listen(port, () => {
-  console.log(`server is listening at port ${port}`);
+server.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });

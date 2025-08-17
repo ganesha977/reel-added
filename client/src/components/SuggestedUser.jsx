@@ -18,7 +18,7 @@ const SuggestedUsers = () => {
   const handleFollowOrUnfollow = async (targetUserId) => {
     try {
       const res = await axios.post(
-        `http://localhost:7777/api/v1/user/followorunfollow/${targetUserId}`,
+        `https://reel-server.onrender.com/api/v1/user/followorunfollow/${targetUserId}`,
         {},
         { withCredentials: true }
       );
@@ -40,7 +40,7 @@ const SuggestedUsers = () => {
 
   if (!suggestedUsers || suggestedUsers.length === 0) {
     return (
-      <div className="hidden md:block my-10 w-full max-w-xs text-sm text-gray-500">
+      <div className="hidden md:block my-10 w-full max-w-xs text-sm text-gray-500 ">
         No suggested users
       </div>
     );
